@@ -29,7 +29,7 @@ trait AdminOverviewAbstraction
 
 		$month = ['January', 'February', 'March', 'April', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-		for($month as $each_month)
+		foreach($month as $each_month)
 		{
 			$monthQueryKeysValues = ['paymentMonth' => $each_month];
 			$salesMadePerMonth = $allSuccessfulPayDetails->where($monthQueryKeysValues)->pay_amount->sum();

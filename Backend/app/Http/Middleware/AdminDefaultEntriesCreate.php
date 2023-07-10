@@ -2,7 +2,7 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\Services\CreateAdminDefaultEntries;
+use App\Http\Controllers\Services\Admin\CreateAdminDefaultEntries;
 
 use Illuminate\Http\Request;
 use Closure;
@@ -20,14 +20,14 @@ class AdminDefaultEntriesCreate
      */
     public function handle(Request $request, Closure $next)
     {
-        if($request->isMethod('post')){
-
-            try{
-
+        if($request->isMethod('post'))
+        {
+            try
+            {
                 $this->createAdminDefault();
-
-            }catch(\Exception $ex){
-
+            }
+            catch(\Exception $ex)
+            {
                 $status = [
                     'code' => 0,
                     'status' => 'adminInitFailed',
@@ -35,9 +35,7 @@ class AdminDefaultEntriesCreate
                 ];
 
                 $response()->json($status, 200);
-
             }
-
         }
 
         return $next($request);

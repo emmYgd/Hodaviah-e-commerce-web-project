@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 
 use App\Http\Controllers\Validators\BuyerReferralRequestRules;
 
@@ -114,10 +115,12 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
    }
 
 
-   public function ReferralLinkUse(Request $request, $unique_buyer_id): JsonResponse
+   public function ReferralLinkUse(Request $request, $unique_buyer_id): RedirectResponse//: JsonResponse
    {
       $status = array();
 
+      //redirect to our homepage:
+      $redirect_link = redirect()->to('http://localhost/Hodaviah/FrontEnd/Shop/Shopper/buyerShopCategory.html');
       try
       {
          //get rules from validator class:
@@ -133,19 +136,22 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
 
          
          $bonus_has_recorded = $this->BuyerReferralLinkUseService($unique_buyer_id);
-         if($bonus_has_recorded)
+         if(!$bonus_has_recorded)
          {
-           //redirect to our homepage:
-
+           //not expecting error here
          }
+
+         
+         //$redirect_link = 
 
          $status = [
             'code' => 1,
             'serverStatus' => 'UpdateSuccess!',
-            'referral_link' => $bonus_has_recorded//$unique_buyer_id,//
+            'referral_link' =>$request->getHttpHost()//$bonus_has_recorded//$unique_buyer_id,//
          ];
 
-      }catch(\Exception $ex)
+      }
+      catch(\Exception $ex)
       {
 
          $status = [
@@ -154,12 +160,12 @@ final class BuyerReferralController extends Controller //implements BuyerExtrasI
             'short_description' => $ex->getMessage(),
          ];
 
-      }/*finally
-      {*/
-         return response()->json($status, 200);
+      }
+      finally
+      {
          //redirect to our homepage:
-
-      //}
+         return $redirect_link; 
+      }
       
    }
 

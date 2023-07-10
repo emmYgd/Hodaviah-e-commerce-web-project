@@ -14,7 +14,7 @@ class BuyerObserver
      */
     public function created(Buyer $buyer)
     {
-        $buyer_email = $buyer->buyer_email
+        $buyer_email = $buyer->buyer_email;
 
         //send mail: //NOTE: In a cart just created, the default value is pending:
         $mail_from = env('ADMIN_EMAIL');
@@ -42,7 +42,7 @@ class BuyerObserver
      */
     public function updated(Buyer $buyer)
     {
-        $buyer_email = $buyer->buyer_email
+        $buyer_email = $buyer->buyer_email;
 
         //send mail: //NOTE: In a cart just created, the default value is pending:
         $mail_from = env('ADMIN_EMAIL');

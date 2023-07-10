@@ -139,12 +139,24 @@ Route::group(['prefix' => 'v1/buyer/', /*'middleware' => ''*/], function(){
 		]);
 
 
+		Route::post('fetch/all/buyer/cart/ids', [
+			//'as' => 'init', 
+			//'middleware' => 'init',
+    		'uses' => 'BuyerCartController@FetchAllBuyerCartIDs'
+		]);
+
+		Route::post('fetch/each/buyer/cart/details', [
+			//'as' => 'init', 
+			//'middleware' => 'init',
+    		'uses' => 'BuyerCartController@FetchEachBuyerCartDetails'
+		]);
+
 
 		//this will include their pricing with or without shipping...
-		Route::get('view/all/goods/for/sale', [
+		Route::get('fetch/all/products/details', [
 			'as' => 'goods_for_sale', 
 			//'middleware' => 'init',
-    		'uses' => 'BuyerGoodsController@ViewAvailableGoods'
+    		'uses' => 'BuyerProductController@FetchAvailableProducts'
 		]);
 
 		//this is for when the buyer searches for details of the goods that he already has the summary...
@@ -168,16 +180,23 @@ Route::group(['prefix' => 'v1/buyer/', /*'middleware' => ''*/], function(){
     		'uses' => 'BuyerCartController@ViewCartsByCategory'//Pending or Cleared
 		]);
 
+		//This has been handled on frontend:
 		Route::get('edit/pending/carts', [
 			//'as' => 'edit_pending_carts', 
 			//'middleware' => 'init',
     		'uses' => 'BuyerCartController@EditPendingCartGoods'//Pending or Cleared
 		]);
-
+		//this has been handled on frontend:
 		Route::get('delete/pending/carts', [
 			//'as' => 'delete_pending_carts', 
 			//'middleware' => 'init',
     		'uses' => 'BuyerCartController@DeletePendingCart'//Pending or Cleared
+		]);
+
+		Route::post('save/pending/cart/details', [
+			//'as' => 'delete_pending_carts', 
+			//'middleware' => 'init',
+    		'uses' => 'BuyerCartController@SavePendingCartDetails'//Pending or Cleared
 		]);
 
 		//use guzzlehttp to connect to external API to make payment:
@@ -186,7 +205,7 @@ Route::group(['prefix' => 'v1/buyer/', /*'middleware' => ''*/], function(){
 		Route::post('make/payment', [
 			//'as' => 'make_payment',
 			//'middleware' => 'init',
-    		'uses' => 'BuyerPaymentController@MakePayment'
+    		'uses' => 'BuyerPaymentExecuteController@MakePayment'
 		]);
 
 		/*Buyer's Credit Card or other details of means of payment ....
@@ -202,6 +221,12 @@ Route::group(['prefix' => 'v1/buyer/', /*'middleware' => ''*/], function(){
 			'as' => 'payment_history',
 			//'middleware' => 'init',
     		'uses' => 'BuyerPaymentController@ViewPaymentHistory'
+		]);
+
+		Route::post('fetch/general/statistics', [
+			'as' => 'general_statistics', 
+			//'middleware' => 'init',
+    		'uses' => 'BuyerExtrasController@FetchGeneralStatistics'
 		]);
 		
 		//real time location of the goods as updated by the admin:
@@ -300,6 +325,25 @@ Route::group(['prefix' => 'v1/admin', /*'middleware' => ''*/], function()
     		'uses' => 'AdminGeneralController@UploadProductDetailsImage'
 		]);
 
+		Route::post('fetch/all/product/ids', [
+			'as' => '', 
+			//'middleware' => 'init',
+    		'uses' => 'AdminGeneralController@FetchAllProductIDs'
+		]);
+
+		Route::post('fetch/each/product/details', [
+			'as' => '', 
+			//'middleware' => 'init',
+    		'uses' => 'AdminGeneralController@FetchEachProductDetails'
+		]);
+
+		Route::post('delete/each/product/details', [
+			'as' => '', 
+			//'middleware' => 'init',
+    		'uses' => 'AdminGeneralController@DeleteEachProductDetails'
+		]);
+
+
 		Route::post('fetch/each/buyer/details', [
 			'as' => '',
 			//'middleware' => 'init',
@@ -380,6 +424,14 @@ Route::group(['prefix' => 'v1/admin', /*'middleware' => ''*/], function()
 		
 		/*some of these data will be used for plotting charts on the frontend:
 			include - month, total payment made*/
+
+		Route::post('fetch/general/statistics', [
+			'as' => 'general_statistics', 
+			//'middleware' => 'init',
+    		'uses' => 'AdminExtrasController@FetchGeneralStatistics'
+		]);
+		
+
 		Route::get('sales/chart/data', [
 			'as' => 'sales_data', 
 			//'middleware' => 'init',

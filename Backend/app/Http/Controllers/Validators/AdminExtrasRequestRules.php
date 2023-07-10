@@ -22,7 +22,6 @@ trait AdminExtrasRequestRules {
     {
         //set validation rules:
         $rules = [
-
             'token_id' => 'required | exists:admins',
         ];
 
@@ -35,6 +34,16 @@ trait AdminExtrasRequestRules {
         //set validation rules:
         $rules = [
             'token_id' => 'required | exists:admins',
+        ];
+
+        return $rules;
+    }
+
+    protected function fetchGeneralStatisticsRules(): array
+    {
+        //set validation rules:
+        $rules = [
+            'token_id' => 'required | string | exists:admins',
         ];
 
         return $rules;

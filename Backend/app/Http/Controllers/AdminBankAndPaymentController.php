@@ -35,19 +35,19 @@ final class AdminBankAndPaymentController extends Controller //implements AdminB
 
             if($validator->fails())
             {
-                throw new \Exception("Invalid Input provided!");
+                throw new \Exception("Invalid Input Provided!");
             }
 
             //create without mass assignment:
             $details_has_saved = $this->AdminSaveBankDetailsService($request);
             if(!$details_has_saved/*false*/)
             {
-                throw new \Exception("Bank Details not saved!");
+                throw new \Exception("Bank Details not Saved!");
             }
 
              $status = [
                 'code' => 1,    
-                'serverStatus' => 'bankDetailsSaved!',
+                'serverStatus' => 'BankDetailsSaved!',
             ];
 
         }

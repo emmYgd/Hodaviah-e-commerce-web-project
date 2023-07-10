@@ -3,7 +3,7 @@
 namespace App\Services\Traits\ModelAbstraction;
 
 use Illuminate\Http\Request;
-//use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\Storage;
 
 use App\Services\Traits\ModelCRUD\PaymentCRUD;
 use App\Services\Traits\ModelCRUD\CartCRUD;
@@ -18,7 +18,6 @@ trait AdminGeneralAbstraction {
 
 	use PaymentCRUD;
 	use CartCRUD;
-	use CommodityCRUD;
 	use ProductCRUD;
 	use AdminGenBizCRUD;
 	use ComputeUniqueIDService;
@@ -55,11 +54,22 @@ trait AdminGeneralAbstraction {
 			$queryKeysValues = ['product_token_id' => $product_token_id];
 			//this is the image file uploads:
 			//$newKeysValues = $request->except(['token_id', 'product_token_id']);
+
+			//Images in laravel will be stored in a storage folder while their pointer path will be stored in a database:
+
+			//first store these images in a storage location on server:
+			//probably stored in: ../storage/app/public/uploads first
+			$main_image_1_rep = $request->file('main_image_1')->store('uploads');
+			$main_image_2_rep = $request->file('main_image_2')->store('uploads');
+			$logo_1_rep = $request->file('logo_1')->store('uploads');
+			$logo_2_rep = $request->file('logo_2')->store('uploads');
+
+			//Now store their respective links in the database:
 			$newKeysValues = [
-				'main_image_1' => $request->file('main_image_1'),
-				'main_image_2' => $request->file('main_image_2'),
-				'logo_1' => $request->file('logo_1'),
-				'logo_2' => $request->file('logo_2')
+				'main_image_1' => $main_image_1_rep,
+				'main_image_2' => $main_image_2_rep,
+				'logo_1' => $logo_1_rep,
+				'logo_2' => $logo_2_rep
 			];
 
 			$product_image_has_updated = $this->ProductUpdateSpecificService($queryKeysValues, $newKeysValues);
@@ -73,6 +83,70 @@ trait AdminGeneralAbstraction {
 		return true;
 	}
 
+	protected function AdminFetchAllProductIDsService($request)
+	{
+		$allProductDetails = $this->ProductReadAllLazyService();
+		
+		//the above returns a collection: loop through to get only the ids:
+		$allProductIDs = $allProductDetails->pluck('product_token_id');
+		return $allProductIDs;
+	}
+
+	protected function AdminFetchEachProductDetailsService($request)
+	{
+		$queryKeysValues = [
+			'product_token_id' => $request->product_token_id,
+		];
+
+		$each_product_detail = $this->ProductReadSpecificService($queryKeysValues);
+		if(!$each_product_detail)
+		{
+			throw new \Exception("Product Details not found! Ensure you have created this product as approriate.");
+		}
+
+		//get the buyer id:
+		//now use this to get the buyer model:(this is in a bead to get buyer email and phone number)
+
+		//begin to prepare the return array:
+		
+		//for images, fetch images whose db link is in the model:
+		$each_product_detail->main_image_1 = base64_encode(Storage::get($each_product_detail->main_image_1));
+		$each_product_detail->main_image_2 = base64_encode(Storage::get($each_product_detail->main_image_2));
+		$each_product_detail->logo_1 = base64_encode(Storage::get($each_product_detail->logo_1));
+		$each_product_detail->logo_2 = base64_encode(Storage::get($each_product_detail->logo_2));
+
+		//get the date created because the feature is hidden:
+		$each_product_detail['product_created_at'] = $each_product_detail->created_at;
+
+		return $each_product_detail;
+	}
+
+	protected function AdminDeleteEachProductDetailsService(Request $request)
+	{
+		$deleteKeysValues = [
+			'product_token_id' => $request->product_token_id,
+		];
+
+		$each_product_detail = $this->ProductReadSpecificService($deleteKeysValues);
+		if(!$each_product_detail)
+		{
+			throw new \Exception("Product Details not found! Ensure you have created this product as approriate.");
+		}
+
+		//get the buyer id:
+		//begin to delete the images on server whose links are stored in our Model:
+		
+		//for images, fetch images whose db link is in the model:
+		Storage::delete($each_product_detail->main_image_1);
+		Storage::delete($each_product_detail->main_image_2);
+		Storage::delete($each_product_detail->logo_1);
+		Storage::delete($each_product_detail->logo_2);
+
+		//having deleted the images, delete the whole entry inside the database:
+		$product_has_deleted = $this->ProductDeleteSpecificService($deleteKeysValues);
+
+		return $product_has_deleted;
+	}
 
 	protected function AdminSaveBusinessDetailsService(Request $request) //: bool
 	{
